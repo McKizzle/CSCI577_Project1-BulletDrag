@@ -18,7 +18,7 @@ class BallisticModel:
             g1 = G1()
             self.__model = g1.__model
             self.__name = g1.__name
-
+        
     def set_name(self, name):
         self.__name = name
     
@@ -27,21 +27,25 @@ class BallisticModel:
 
     def get_am(self, vel):
         vels=self.__model[:,0]
-        bounds=[]
-        for element in range(0,len(self.__model[:,0])-1,1):
-            if(vels[element]>= vel and vels[element+1]<= vel):
-                bounds=np.array([self.__model[element],self.__model[element+1]])
-        v1=bounds[0][0]
-        v0=bounds[1][0]
-        a1=bounds[0][1]
-        a0=bounds[1][1]
-        m1=bounds[0][2]
-        m0=bounds[1][2]
+        aV = 0
+        mV = 0
+        for i in range(0, len(self.__model[:,0]) - 1, 1):
+            if(vels[i] >= vel and vels[i+1] < vel):
+                # Perform linear interpolation
+                bounds = np.array([self.__model[i], self.__model[i+1]])
+                vp = bounds[:, 0]
 
-        aout=a0+(((a1-a0)/(v1-v0))*(vel-v0))
-        mout=m0+(((m1-m0)/(v1-v0))*(vel-v0))
+                # Linear interp for A(v)
+                fp = bounds[:, 1]
+                Av = np.interp(vel, vp, fp)
 
-        return np.array([aout,mout])
+                # Linear interp for M(v)
+                fp = bounds[:, 2]
+                Mv = np.interp(vel, vp, fp)
+
+                break
+
+        return np.array([Av, Mv])
 
 def G1():
     g1_data = np.array([[ 4230 , 1.477404177730177e-04 , 1.9565 ],
