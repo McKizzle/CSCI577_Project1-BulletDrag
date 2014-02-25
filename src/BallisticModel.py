@@ -8,6 +8,8 @@ class BallisticModel:
         """ Initializes a balistic model. 
             Expects the model data to be passed in as an array such that column one 
             is the velocity, the second column is A and the third column is M.
+
+            :param model_data: Expects a numpy array. If not passed in defaults to G1. 
         """
  
         if model_data is not None:
@@ -16,7 +18,6 @@ class BallisticModel:
             g1 = G1()
             self.__model = g1.__model
             self.__name = g1.__name
-
 
     def set_name(self, name):
         self.__name = name
