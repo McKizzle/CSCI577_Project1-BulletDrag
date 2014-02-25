@@ -1,7 +1,46 @@
 import numpy as np
 import pylab as py
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import math as m
+
+class BallisticModel:
+    def __init__(self, model_data = None):
+        """ Initializes a balistic model. 
+            Expects the model data to be passed in as an array such that column one 
+            is the velocity, the second column is A and the third column is M.
+        """
+ 
+        if model_data is not None:
+            self.__model = model_data
+        else:
+            g1 = G1()
+            self.__model = g1.__model
+            self.__name = g1.__name
+
+
+    def set_name(self, name):
+        self.__name = name
+    
+    def get_name(self):
+        return self.__name
+
+    def get_am(self, vel):
+        vels=self.__model[:,0]
+        bounds=[]
+        for element in range(0,len(self.__model[:,0])-1,1):
+            if(vels[element]>= vel and vels[element+1]<= vel):
+                bounds=np.array([self.__model[element],self.__model[element+1]])
+        v1=bounds[0][0]
+        v0=bounds[1][0]
+        a1=bounds[0][1]
+        a0=bounds[1][1]
+        m1=bounds[0][2]
+        m0=bounds[1][2]
+
+        aout=a0+(((a1-a0)/(v1-v0))*(vel-v0))
+        mout=m0+(((m1-m0)/(v1-v0))*(vel-v0))
+
+        return np.array([aout,mout])
 
 def G1():
     g1_data = np.array([[ 4230 , 1.477404177730177e-04 , 1.9565 ],
@@ -45,7 +84,9 @@ def G1():
         [ 100 , 7.225247327590413e-05 , 1.925 ],
         [ 65 , 5.792684957074546e-05 , 1.975 ],
         [ 0 , 5.206214107320588e-05 , 2.000 ]])
-    return 0
+    g1 = BallisticModel(g1_data)
+    g1.set_name("G1")
+    return g1
 
 def G2():
     g2_data = np.array([[ 1674 , .0079470052136733 , 1.36999902851493 ],
@@ -55,7 +96,10 @@ def G2():
         [ 670 , 2.34364342818625e-04 , 1.71869536324748 ],
         [ 335 , 1.77962438921838e-04 , 1.76877550388679 ],
         [ 0 , 5.18033561289704e-05 , 1.98160270524632 ]])
-    return 0
+
+    g2 = BallisticModel(g2_data)
+    g2.set_name("G2")
+    return g2
 
 def G5(): 
     g5_data = np.array([[ 1730 , 7.24854775171929e-03 , 1.41538574492812 ],
@@ -65,7 +109,9 @@ def G5():
         [ 837 , 1.03965974081168e-07 , 2.84204791809926 ],
         [ 335 , 1.09301593869823e-04 , 1.81096361579504 ],
         [ 0 , 3.51963178524273e-05 , 2.00477856801111 ]])
-    return None
+    g5 = BallisticModel(g5_data)
+    g5.set_name("G5")
+    return g5
 
 def G7():
     g7_data = np.array([[ 4200 , 1.29081656775919e-09 , 3.24121295355962 ],
@@ -77,7 +123,9 @@ def G7():
         [ 670 , 7.52285155782535e-06 , 2.1738019851075 ],
         [ 540 , 1.31766281225189e-05 , 2.08774690257991 ],
         [ 0 , 1.34504843776525e-05 , 2.08702306738884 ]])
-    return None
+    g7 = BallisticModel(g7_data)
+    g7.set_name("G7")
+    return g7
 
 def G8():
     g8_data = np.array([[ 3571 , .0112263766252305 , 1.33207346655961 ],
@@ -86,39 +134,8 @@ def G8():
         [ 1088 , 2.0538037167098e-16 , 5.80410776994789 ],
         [ 976 , 5.92182174254121e-12 , 4.29275576134191 ],
         [ 0 , 4.3917343795117e-05 , 1.99978116283334 ]])
+    g8 = BallisticModel(g8_data)
+    g8.set_name("G8")
+    return g8
 
-
-
-class BallisticModel:
-
-    def __init__(self,model_data):
-        """ Initializes a balistic model. 
-            Expects the model data to be passed in as an array such that column one 
-            is the velocity, the second column is A and the third column is M.
-        """
-        self.model = model_data
-
-        return self
-    
-    def __init__(self):
-        self = G1()
-        return self
-
-    def get_am(self,vel):
-        vels=self.model[:,0]
-        bounds=[]
-        for element in range(0,len(self.model[:,0])-1,1):
-            if(vels[element]>= vel and vels[element+1]<= vel):
-                bounds=np.array([self.model[element],self.model[element+1]])
-        v1=bounds[0][0]
-        v0=bounds[1][0]
-        a1=bounds[0][1]
-        a0=bounds[1][1]
-        m1=bounds[0][2]
-        m0=bounds[1][2]
-
-        aout=a0+(((a1-a0)/(v1-v0))*(vel-v0))
-        mout=m0+(((m1-m0)/(v1-v0))*(vel-v0))
-
-        return np.array([aout,mout])
-            
+ 
