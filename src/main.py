@@ -13,7 +13,10 @@ def main():
         print model.get_name()
 
     G1_1 = bm.BallisticModel()
-    print G1_1.get_name()
+    #print G1_1.get_name()
+
+    #print G1_1.__dmodel
+    G1_1.get_am(2900)
 
 
 if __name__ == '__main__':
