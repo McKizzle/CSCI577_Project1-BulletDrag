@@ -47,6 +47,9 @@ class BallisticModel:
 
         return np.array([Av, Mv])
 
+    def __str__(self):
+        return self.__name
+    
 def G1():
     g1_data = np.array([[ 4230 , 1.477404177730177e-04 , 1.9565 ],
         [ 3680 , 1.920339268755614e-04 , 1.925 ],
