@@ -24,7 +24,7 @@ def main():
 # Sample bullet with G1 Model @ 0.0 deg
 def test_1():
     sblt = blt.smpl_bullet_g1()
-    sblt.set_velocity(0.0, 3300)
+    sblt.set_velocity(1.0, 3300)
     sblt.launch(0, 5, 0.1)
     sblt.plot_trajectory()
 

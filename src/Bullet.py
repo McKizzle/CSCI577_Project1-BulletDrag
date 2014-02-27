@@ -21,6 +21,7 @@ class Bullet:
         self.__weight = weight
         self.__ballistic_coefficient = ballistic_coefficient
         self.__times = [0]
+        self.__steps = 0
         
         if ballistic_model is not None:
             self.__ballistic_model = ballistic_model
@@ -28,6 +29,9 @@ class Bullet:
             self.__ballistic_model = bm.G1()
 
     def move(self, t, x, g=32.174):
+        print "Time: %0.3f" % t
+        print "X: ", x
+        """ ODE system for bullet movement """
         dxdt = np.zeros(np.size(x))
         dxdt[X] = x[VX]
         dxdt[Y] = x[VY]
@@ -35,17 +39,37 @@ class Bullet:
         v = np.array(x[VX:VY + 1])
         v_norm = np.linalg.norm(v)
         v_n = v / v_norm
-        
+
+        print "V: ", v
+        print "V Norm: ", v_norm
+        print "V Unit: ", v_n
+        print "grs: ", self.__weight
+        print "=========== Vx Breakdown =============="
+        print "-self.f(v_norm): %0.2f" % -self.f(v_norm)
+        print "Vx: %0.7f" % (-self.f(v_norm) * v_n[0] / self.__weight)
         dxdt[VX] = -self.f(v_norm) * v_n[0] / self.__weight
+        print "======================================="
+
         dxdt[VY] = -g - self.f(v_norm) * v_n[1] / self.__weight
+
+        print "DxDt: ", dxdt
+        
+        self.__steps = self.__steps + 1
+        #if(self.__steps == 2):
+        #    exit()
+        
 
         return dxdt
 
     def f(self, vel):
         Av, Mv = self.__ballistic_model.get_am(vel)
-        F_d = - Av / self.__ballistic_coefficient * vel ** -1 * Mv
+        print "vel: ", vel
+        print "Av: ", Av
+        print "Mv: ", Mv
+        force = - Av / self.__ballistic_coefficient * vel **( -1 * Mv) 
+        print "Force: ", force
         
-        return F_d 
+        return force
 
     def launch(self, t_0, t_max, dt):
         """ Launch the bullet """
@@ -56,6 +80,9 @@ class Bullet:
         for t in times[1:]:
             intgr.integrate(intgr.t + dt)
             self.__trajectory.append(intgr.y)
+            print "TIME: ", t
+            print "Position: ", self.__trajectory[-1]
+            exit()
         self.__times = times
         
         print np.array(self.__trajectory)
@@ -88,12 +115,10 @@ class Bullet:
         """
         self.__cartridge_info = cartridge_info
      
-    @property
     def weight(self):
         return self.__weight
-
-    @weight.setter
-    def weight(self, weight):
+ 
+    def set_weight(self, weight):
         self.__weight = weight
 
     @property
@@ -126,11 +151,12 @@ class Bullet:
         theta = np.pi / 180.0 * theta #convert to radians.
         self.__trajectory[-1][VX] = vel * np.cos(theta)
         self.__trajectory[-1][VY] = vel * np.sin(theta)
+        print "Velocity", self.__trajectory
     
 
 def smpl_bullet_g1():
     smpl = Bullet(ballistic_model = bm.G1())
-    smpl.weight = 50
+    smpl.set_weight(50)
     smpl.ballistic_coeficient = 0.242
 
     return smpl
