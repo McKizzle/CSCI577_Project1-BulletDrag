@@ -1,6 +1,6 @@
 import numpy as np
 import pylab as py
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import math as m
 import scipy.integrate as scint
 import BallisticModel as bm
@@ -12,8 +12,11 @@ VX = 2
 VY = 3
 
 class Bullet:
-    def __init__(self, initial_conditions=np.array([0,0,0,0]), weight=1.0, ballistic_coefficient=1.0,
-            ballistic_model = None):
+    """ Represents a bullet
+        TODO: Seperate the into two classes. A cartrige class and rifle class.
+    """
+    def __init__(self, initial_conditions=np.array([0,0,0,0]), weight=1.0,
+            ballistic_coefficient=1.0, ballistic_model = None):
         self.__trajectory = [initial_conditions] 
         self.__weight = weight
         self.__ballistic_coefficient = ballistic_coefficient
@@ -24,8 +27,7 @@ class Bullet:
         else:
             self.__ballistic_model = bm.G1()
 
-    def move(self, t, x):
-        print x
+    def move(self, t, x, g=32.174):
         dxdt = np.zeros(np.size(x))
         dxdt[X] = x[VX]
         dxdt[Y] = x[VY]
@@ -34,10 +36,8 @@ class Bullet:
         v_norm = np.linalg.norm(v)
         v_n = v / v_norm
         
-        dvdt = self.f(v_norm) * vn * 1 / self.__weight
-
-        dxdt[VX] = dvdt[0]
-        dxdt[VY] = dvdt[1]
+        dxdt[VX] = -self.f(v_norm) * v_n[0] / self.__weight
+        dxdt[VY] = -g - self.f(v_norm) * v_n[1] / self.__weight
 
         return dxdt
 
@@ -56,9 +56,13 @@ class Bullet:
         for t in times[1:]:
             intgr.integrate(intgr.t + dt)
             self.__trajectory.append(intgr.y)
+        self.__times = times
+        
+        print np.array(self.__trajectory)
 
     def plot_trajectory(self):
-        plt.plot(self.times, self.__trajectory)
+        traj = self.__trajectory
+        plt.plot(traj[X], traj[Y])#, "ko")
         plt.show()
 
     def __str__(self):
@@ -102,25 +106,30 @@ class Bullet:
 
     @property
     def position(self):
-        self.__conditions[X:Y+1]
+        self.__trajectory[-1][X:Y+1]
     
     @position.setter
     def position(self, x, y):
-        self.__conditions[X] = x
-        self.__conditions[Y] = y
+        self.__trajectory[-1][X] = x
+        self.__trajectory[-1][Y] = y
     
     @property
     def velocity(self):
-        return self.__conditions[VX:VY + 1]
+        return self.__trajectory[-1][VX:VY + 1]
 
-    @velocity.setter
-    def velocity(self, v_x, v_y):
-        self.__conditions[VX] = v_x
-        self.__conditions[VY] = v_y
+    def set_velocity(self, theta, vel):
+        """ Sets the x, y velocities based on an initial velocity and 
+            fireing angle.
+            :param vel: Velocity in ft/s (def: 3300ft/s)
+            :param theta: Firing angle in degrees (def: 0.0 deg)
+        """
+        theta = np.pi / 180.0 * theta #convert to radians.
+        self.__trajectory[-1][VX] = vel * np.cos(theta)
+        self.__trajectory[-1][VY] = vel * np.sin(theta)
+    
 
-
-def sample_bullet():
-    smpl = Bullet()
+def smpl_bullet_g1():
+    smpl = Bullet(ballistic_model = bm.G1())
     smpl.weight = 50
     smpl.ballistic_coeficient = 0.242
 

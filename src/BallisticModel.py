@@ -27,8 +27,8 @@ class BallisticModel:
 
     def get_am(self, vel):
         vels=self.__model[:,0]
-        aV = 0
-        mV = 0
+        Av = 0
+        Mv = 0
         for i in range(0, len(self.__model[:,0]) - 1, 1):
             if(vels[i] >= vel and vels[i+1] < vel):
                 # Perform linear interpolation
