@@ -28,9 +28,7 @@ class Bullet:
         else:
             self.__ballistic_model = bm.G1()
 
-    def move(self, t, x, g=32.174):
-        print "Time: %0.3f" % t
-        print "X: ", x
+    def move(self, t, x, g=32.1522):
         """ ODE system for bullet movement """
         dxdt = np.zeros(np.size(x))
         dxdt[X] = x[VX]
@@ -40,19 +38,12 @@ class Bullet:
         v_norm = np.linalg.norm(v)
         v_n = v / v_norm
 
-        print "V: ", v
-        print "V Norm: ", v_norm
-        print "V Unit: ", v_n
-        print "grs: ", self.__weight
-        print "=========== Vx Breakdown =============="
-        print "-self.f(v_norm): %0.2f" % -self.f(v_norm)
-        print "Vx: %0.7f" % (-self.f(v_norm) * v_n[0] / self.__weight)
-        dxdt[VX] = -self.f(v_norm) * v_n[0] / self.__weight
-        print "======================================="
+        dxdt[VX] = -self.f(v_norm) * v[0] / self.__weight
+        #print "======================================="
 
-        dxdt[VY] = -g - self.f(v_norm) * v_n[1] / self.__weight
+        dxdt[VY] = -g - self.f(v_norm) * v[1] / self.__weight
 
-        print "DxDt: ", dxdt
+        #print "DxDt: ", dxdt
         
         self.__steps = self.__steps + 1
         #if(self.__steps == 2):
@@ -63,11 +54,7 @@ class Bullet:
 
     def f(self, vel):
         Av, Mv = self.__ballistic_model.get_am(vel)
-        print "vel: ", vel
-        print "Av: ", Av
-        print "Mv: ", Mv
-        force = - Av / self.__ballistic_coefficient * vel **( -1 * Mv) 
-        print "Force: ", force
+        force = Av / self.__ballistic_coefficient * vel **(Mv - 1) 
         
         return force
 
@@ -80,16 +67,11 @@ class Bullet:
         for t in times[1:]:
             intgr.integrate(intgr.t + dt)
             self.__trajectory.append(intgr.y)
-            print "TIME: ", t
-            print "Position: ", self.__trajectory[-1]
-            exit()
         self.__times = times
-        
-        print np.array(self.__trajectory)
-
+    
     def plot_trajectory(self):
-        traj = self.__trajectory
-        plt.plot(traj[X], traj[Y])#, "ko")
+        traj = np.array(self.__trajectory) 
+        plt.plot(traj[:,X]/3, traj[:,Y])#, "ko")
         plt.show()
 
     def __str__(self):
@@ -151,7 +133,6 @@ class Bullet:
         theta = np.pi / 180.0 * theta #convert to radians.
         self.__trajectory[-1][VX] = vel * np.cos(theta)
         self.__trajectory[-1][VY] = vel * np.sin(theta)
-        print "Velocity", self.__trajectory
     
 
 def smpl_bullet_g1():
