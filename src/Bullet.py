@@ -15,7 +15,7 @@ class Bullet:
     """ Represents a bullet
         TODO: Seperate the into two classes. A cartrige class and rifle class.
     """
-    def __init__(self, initial_conditions=np.array([0,0,0,0]), weight=1.0,
+    def __init__(self, initial_conditions=np.array([0.0,0.0,0.0,0.0]), weight=1.0,
             ballistic_coefficient=1.0, ballistic_model = None):
         self.__trajectory = [initial_conditions] 
         self.__weight = float(weight)
