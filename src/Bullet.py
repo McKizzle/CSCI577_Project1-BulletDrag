@@ -18,8 +18,8 @@ class Bullet:
     def __init__(self, initial_conditions=np.array([0,0,0,0]), weight=1.0,
             ballistic_coefficient=1.0, ballistic_model = None):
         self.__trajectory = [initial_conditions] 
-        self.__weight = weight
-        self.__ballistic_coefficient = ballistic_coefficient
+        self.__weight = float(weight)
+        self.__ballistic_coefficient = float(ballistic_coefficient)
         self.__times = [0]
         self.__steps = 0
         
@@ -30,26 +30,16 @@ class Bullet:
 
     def move(self, t, x, g=32.1522):
         """ ODE system for bullet movement """
-        dxdt = np.zeros(np.size(x))
-        dxdt[X] = x[VX]
-        dxdt[Y] = x[VY]
-
         v = np.array(x[VX:VY + 1])
         v_norm = np.linalg.norm(v)
-        v_n = v / v_norm
+        v_u = v / v_norm
 
-        dxdt[VX] = -self.f(v_norm) * v[0] / self.__weight
-        #print "======================================="
-
-        dxdt[VY] = -g - self.f(v_norm) * v[1] / self.__weight
-
-        #print "DxDt: ", dxdt
-        
-        self.__steps = self.__steps + 1
-        #if(self.__steps == 2):
-        #    exit()
-        
-
+        a_x = -self.f(v_norm) * v_u[0] / self.__weight
+        a_y = -g - self.f(v_norm) * v_u[1] / self.__weight
+         
+        dxdt = np.array([v[0], v[1], a_x, a_y])
+        #print dxdt
+        #exit()
         return dxdt
 
     def f(self, vel):
@@ -102,26 +92,21 @@ class Bullet:
  
     def set_weight(self, weight):
         self.__weight = weight
-
-    @property
-    def ballistic_coefficient(self):
+    
+    def get_ballistic_coefficient(self):
         return self.__ballistic_coefficient
 
-    @ballistic_coefficient.setter
-    def ballistic_coefficient(self, ballistic_coefficient):
-        self.__ballistic_coefficient = ballistic_coefficient
+    def set_ballistic_coefficient(self, ballistic_coefficient):
+        self.__ballistic_coefficient = float(ballistic_coefficient)
 
-    @property
-    def position(self):
+    def get_position(self):
         self.__trajectory[-1][X:Y+1]
     
-    @position.setter
-    def position(self, x, y):
+    def set_position(self, x, y):
         self.__trajectory[-1][X] = x
         self.__trajectory[-1][Y] = y
     
-    @property
-    def velocity(self):
+    def get_velocity(self):
         return self.__trajectory[-1][VX:VY + 1]
 
     def set_velocity(self, theta, vel):
@@ -130,15 +115,15 @@ class Bullet:
             :param vel: Velocity in ft/s (def: 3300ft/s)
             :param theta: Firing angle in degrees (def: 0.0 deg)
         """
-        theta = np.pi / 180.0 * theta #convert to radians.
-        self.__trajectory[-1][VX] = vel * np.cos(theta)
-        self.__trajectory[-1][VY] = vel * np.sin(theta)
+        theta = np.pi / 180.0 * float(theta) #convert to radians.
+        self.__trajectory[-1][VX] = float(vel) * np.cos(float(theta))
+        self.__trajectory[-1][VY] = float(vel) * np.sin(float(theta))
     
 
 def smpl_bullet_g1():
     smpl = Bullet(ballistic_model = bm.G1())
-    smpl.set_weight(50)
-    smpl.ballistic_coeficient = 0.242
+    smpl.set_weight(50.0)
+    smpl.set_ballistic_coefficient(0.242)
 
     return smpl
 
