@@ -1,0 +1,109 @@
+import numpy as np
+import pylab as py
+import matplotlib.pyplot as plt
+import math as m
+import scipy.integrate as scint
+import BallisticModel as bm
+
+
+X = 0
+Y = 1
+VX = 2
+VY = 3
+
+def zero():
+    return 0.0
+
+def smpl_long_range():
+    return np.array(
+        [[100.0, 150.0, 200.0, 250.0, 300.0, 400.0, 500.0],
+         [-0.1, 1.3, zero(), -2.6, -6.9, -21.2, -45.8]])
+
+def smpl_short_range():
+    return np.array(
+        [[50.0, 100.0, 150.0, 200.0, 250.0, 300.0],
+         [0.0, 0.5, zero(), -1.7, -4.8, -9.4]])
+
+
+class Cartridge:
+    """ Represents a catridge object, 
+        which contains the bullet properties and range trajectories
+    """
+    def __init__(   self, 
+                    initial_conditions=np.array([0.0,0.0,0.0,0.0]), 
+                    mass_grains=50.0,
+                    ballistic_coefficient=0.242, 
+                    ballistic_model = bm.G1()
+                    ):
+        self.trajectory = [initial_conditions] 
+        self.mass_grains = float(mass_grains)
+        self.ballistic_coefficient = float(ballistic_coefficient)
+        self.times = [0]
+        self.ballistic_model = ballistic_model
+    
+    def set_fireing_velocity_angle(self, vel=3300, theta=0.06):
+        """ Sets the x, y velocities based on an initial velocity and 
+            fireing angle.
+            :param vel: Velocity in ft/s (def: 3300ft/s)
+            :param theta: Firing angle in degrees (def: 0.0 deg)
+        """
+        theta = np.pi / 180.0 * float(theta) #convert to radians.
+        self.trajectory[-1][VX] = float(vel) * np.cos(float(theta))
+        self.trajectory[-1][VY] = float(vel) * np.sin(float(theta))
+
+    def move(self, t, x, g=32.1522):
+        """ ODE system for bullet movement """
+        v = np.array(x[VX:VY + 1])
+        v_norm = np.linalg.norm(v)
+        v_u = v / v_norm
+
+        a_x = -self.f(v_norm) * v_u[0] / self.mass_grains
+        a_y = -g - self.f(v_norm) * v_u[1] / self.mass_grains
+         
+        dxdt = np.array([v[0], v[1], a_x, a_y])
+        return dxdt
+
+    def f(self, vel):
+        """ Drag function """
+        Av, Mv = self.ballistic_model.get_am(vel)
+        force = Av / self.ballistic_coefficient * vel **(Mv - 1) 
+        
+        return force
+
+    def fire(self, t_0, t_max, dt):
+        """ Launch the bullet """
+        intgr = scint.ode(self.move)
+        intgr.set_integrator('dopri5', method = 'adams')
+        intgr.set_initial_value(self.trajectory[-1])
+        times = np.arange(t_0, t_max, dt)
+        for t in times[1:]:
+            intgr.integrate(intgr.t + dt)
+            self.trajectory.append(intgr.y)
+        self.times = times
+    
+    def plot_trajectory(self):
+        traj = np.array(self.trajectory) 
+        plt.plot(traj[:,X]/3, traj[:,Y])#, "ko")
+        plt.show()
+
+    def set_long_range_trajectory(self, long_range_trajectory=smpl_long_range()):
+        """ Set the long range trajectory
+            :param long_range_trajectory: Expects a 2D numpy array. The first row contains the x-vals the
+                second contains the y-vals. 
+        """
+        self.lrt = long_range_trajectory
+    
+    def set_short_range_trajectory(self, short_range_trajectory):
+        """ Set the short range trajectory
+            :param short_range_trajectory: Expects a 2D numpy array. The first row contains the x-vals the
+                second contains the y-vals. 
+        """
+        self.srt = short_range_trajectory 
+
+    def __str__(self):
+        wg = "Grains: %0.2f\n" % self.mass_grains
+        bc = "Balistic Coefficient: %0.2f\n" % self.ballistic_coefficient
+        in_cn = "Initial Conditions: " + self.trajectory[-1].__str__()
+
+        return wg + bc + in_cn + "\n"
+
