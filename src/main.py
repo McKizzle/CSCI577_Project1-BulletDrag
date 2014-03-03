@@ -11,10 +11,12 @@ def main():
     test_ct()
 
 def test_ct():
-    sbct = ct.Cartridge()
+    sbct = ct.smpl_cartridge()
     sbct.set_fireing_velocity_angle()
-    sbct.fire(0, 0.25, 0.0001)
+    sbct.fire(0, 0.25, 0.001)
     sbct.plot_trajectory()
+    sbct.plot_short_range_trajectory()
+    plt.show()
 
 if __name__ == '__main__':
     main()

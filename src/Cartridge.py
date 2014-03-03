@@ -11,6 +11,8 @@ Y = 1
 VX = 2
 VY = 3
 
+LB_GRAIN = 1.0/7000.0
+
 def zero():
     return 0.0
 
@@ -24,6 +26,14 @@ def smpl_short_range():
         [[50.0, 100.0, 150.0, 200.0, 250.0, 300.0],
          [0.0, 0.5, zero(), -1.7, -4.8, -9.4]])
 
+def smpl_cartridge():
+    smpl = Cartridge()
+    smpl.set_fireing_velocity_angle()
+    smpl.set_short_range_trajectory()
+    smpl.set_long_range_trajectory()
+
+    return smpl
+
 
 class Cartridge:
     """ Represents a catridge object, 
@@ -36,7 +46,7 @@ class Cartridge:
                     ballistic_model = bm.G1()
                     ):
         self.trajectory = [initial_conditions] 
-        self.mass_grains = float(mass_grains)
+        self.mass_grains = float(mass_grains) * LB_GRAIN
         self.ballistic_coefficient = float(ballistic_coefficient)
         self.times = [0]
         self.ballistic_model = ballistic_model
@@ -83,9 +93,19 @@ class Cartridge:
     
     def plot_trajectory(self):
         traj = np.array(self.trajectory) 
-        plt.plot(traj[:,X]/3, traj[:,Y])#, "ko")
-        plt.show()
-
+        tr, = plt.plot(traj[:,X], traj[:,Y], 'b')
+        return tr
+   
+    
+    def plot_long_range_trajectory(self):
+        lrt, = plt.plot(self.ltr[0,:], self.ltr[1,:], 'sr')
+        return lrt
+    
+    
+    def plot_short_range_trajectory(self):
+        srt, = plt.plot(self.srt[0,:], self.srt[1,:], '+g')
+    
+     
     def set_long_range_trajectory(self, long_range_trajectory=smpl_long_range()):
         """ Set the long range trajectory
             :param long_range_trajectory: Expects a 2D numpy array. The first row contains the x-vals the
@@ -93,7 +113,7 @@ class Cartridge:
         """
         self.lrt = long_range_trajectory
     
-    def set_short_range_trajectory(self, short_range_trajectory):
+    def set_short_range_trajectory(self, short_range_trajectory=smpl_short_range()):
         """ Set the short range trajectory
             :param short_range_trajectory: Expects a 2D numpy array. The first row contains the x-vals the
                 second contains the y-vals. 
