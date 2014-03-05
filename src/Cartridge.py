@@ -44,12 +44,31 @@ def zero_in(cartridge, starting_theta, dist, tol, r):
         :param tol: the tolorance 
         :param r: the ratio (affects the speed at which the search algorithm converges
     """
-    
+ 
     zeroed_in = False
+    k = 1.0
     theta = starting_theta
     while not zeroed_in:
-        catridge.set_fireing_angle(theta)
-        print "Searching"
+        print "Iteration %d" % k
+
+        cartridge.reset_trajectory()
+        cartridge.set_fireing_angle(theta)
+        cartridge.fire()
+        y = cartridge.elevation_at(dist)
+ 
+        if np.abs(y) < tol:
+            zeroed_in = True
+
+        if y >= 0:
+            theta = theta - r**k * theta
+        elif y < 0:
+            theta = theta + r**k * theta
+
+        k = k + 1
+
+    cartridge.reset_trajectory()
+
+    return theta
 
 #def winchester_308_remmignton_express():
 #    w308 = Cartridge(mass_grains=150, ballistic_coefficient=.314)
@@ -70,6 +89,7 @@ class Cartridge:
                     ballistic_coefficient=0.242, 
                     ballistic_model = bm.G1()
                     ):
+        self.initial_conditions = initial_conditions
         self.trajectory = [initial_conditions] 
         self.mass_grains = float(mass_grains) * LB_GRAIN
         self.ballistic_coefficient = float(ballistic_coefficient)
@@ -111,6 +131,7 @@ class Cartridge:
 
     def fire(self):
         """ Launch the bullet """
+        #print self.t_0, self.t_max, self.dt
         intgr = scint.ode(self.move)
         intgr.set_integrator('dopri5', method = 'adams')
         intgr.set_initial_value(self.trajectory[-1])
@@ -124,18 +145,24 @@ class Cartridge:
         """ Finds the elevation at a specified distance. 
             Don't forget to pass in the distance as feet
         """
+        dist = float(dist)
         traj = np.array(self.trajectory)
-        print traj.shape
-
+        y = None
         for i in range(0, traj.shape[0] - 1):
-            print "---------------------------------------"
-            print "dist: %0.3f" % dist
-            print "x_%i: %0.3f" % (i, traj[i, 0])
-            print "x_%i: %0.3f" % (i + 1, traj[i + 1, 0])
-            if traj[i, 0] >= dist and traj[i + 1, 0] < dist:
+            x = traj[i:(i + 2), 0]
+            #print "---------------------------------------"
+            #print "dist: %0.3f" % dist
+            #print "x_%i: %0.3f" % (i, x[0])
+            #print "x_%i: %0.3f" % (i + 1, x[1])
+            if (traj[i, 0] >= dist):
                 bounds = np.array([traj[i], traj[i + 1]])
-                print bounds
-                return 0
+                #print bounds
+                #print bounds[:, 0]
+                #print bounds[:, 1]
+                y = np.interp(dist, bounds[:, 0], bounds[:, 1])
+                break
+        
+        return y
 
         #for i in range(0, len(self.__model[:,0]) - 1, 1):
         #    if(vels[i] >= vel and vels[i+1] < vel):
@@ -182,10 +209,13 @@ class Cartridge:
         """
         self.srt = short_range_trajectory 
 
-    def set_integration_params(start_time, max_time, dt):
+    def set_integration_params(self, start_time, max_time, dt):
         self.t_0 = start_time
         self.t_max = max_time
         self.dt = dt
+
+    def reset_trajectory(self):
+        self.trajectory = [self.initial_conditions]
 
     def __str__(self):
         wg = "Grains: %0.2f\n" % self.mass_grains
