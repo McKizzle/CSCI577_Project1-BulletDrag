@@ -8,12 +8,13 @@ import scipy.integrate as integrate
 class Projectile:
 
     def __init__(self,xy_init,angle,velocity,bc,gr,sproj):
-        self.xy_init=xy_init
-        self.theta=((float(angle)/360.0)*(2.0*np.pi)) #degrees
+        self.xy_init = np.array(xy_init).astype(float) # Convert array into floats.
+        self.theta=((float(angle)/360.0)*(2.0*np.pi))  # Convert to radians
         self.v_init=float(velocity) #fps
         self.vx_init=self.v_init*np.cos(self.theta)
         self.vy_init=self.v_init*np.sin(self.theta)
         self.bc=float(bc)
+
         if sproj==1:
             self.model=bm.G1()
         elif sproj==2:
@@ -26,11 +27,12 @@ class Projectile:
             self.model=bm.G8()
         else:
             self.model=bm.G1()
+    
         self.mass=float(gr)
         self.t=np.array([])
+
         #[x,y,vx,vy]
-        self.x=[np.array([self.xy_init[0],self.xy_init[1],self.vx_init,self.vy_init])]
-	#print(self.x)
+        self.x=[np.array([self.xy_init[0],self.xy_init[1],self.vx_init,self.vy_init])] # Initial Trajectory
 
     def move(self,t,x):
         v=np.array([x[2],x[3]])
@@ -40,10 +42,7 @@ class Projectile:
         f=((am[0]/self.bc)*(vmag**((am[1])-1.)))
         ax=-f*(vu[0])*(1./self.mass)
         ay=-32.1522-f*(vu[1])*(1./self.mass)
-        #temp=np.array([x[0],x[1],x[2],x[3],f])
         out=np.array([v[0],v[1],ax,ay])
-        #print(temp)
-        #exit()
         return out
 
     def fire(self,t0,tfin):
@@ -68,10 +67,22 @@ class Projectile:
         plt.show()
 
     def get_theta(self):
+        """ Returns the fireing angle in radians """
         return self.theta
 
     def set_theta(self,angle):
+        """ Set the fireing angle. Expects the angle to be in radians """
         self.theta=angle
+
+    def set_fireing_angle_degrees(self, theta=0.06):
+            """ Sets the initial x y velocitites based on the fireing angle.  
+                :param theta: Firing angle in degrees (def: 0.0 deg)
+            """
+        theta = np.pi / 180.0 * float(theta) #convert to radians.
+        self.trajectory[-1][VX] = float(self.v_init) * np.cos(float(theta))
+        self.trajectory[-1][VY] = float(self.v_init) * np.sin(float(theta))
+                                                                                
+
 
     def get_x(self):
         return self.x
