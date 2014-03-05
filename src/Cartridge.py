@@ -34,7 +34,6 @@ def smpl_cartridge():
 
     return smpl
 
-<<<<<<< HEAD
 def zero_in(cartridge, starting_theta, dist, tol, r):
     """ Takes a Cartridge and zeros it in the specified distance within 
         a tolerance using a binary search algorithm. 
@@ -52,25 +51,14 @@ def zero_in(cartridge, starting_theta, dist, tol, r):
         catridge.set_fireing_angle(theta)
         print "Searching"
 
-=======
-def winchester_308_remmignton_express():
-    w308 = Cartridge(mass_grains=150, ballistic_coefficient=.314)
-    w308_long_range = np.array(
-            [[100.0, 150.0, 200.0, 250.0, 300.0, 400.0, 500.0],
-             [2.0, 1.7, zero(), -3.4, -8.8, -26.2, -54.8]]
-    w308.set_long_range_trajectory(long_range_trajectory=w308_long_range)
-
-    return w308
-
-def zero_it_in(bullet, x, tol):
-    """ Zeros in a bullet
-        :param bullet: the projectile to zero in
-        :param x: zero distance
-        :param tol: tolerance
-    """
-    #zeroed = False
-    #while not 
->>>>>>> 9261db3444bab7de134a36b69c6c5bf6a9342dc0
+#def winchester_308_remmignton_express():
+#    w308 = Cartridge(mass_grains=150, ballistic_coefficient=.314)
+#    w308_long_range = np.array(
+#            [[100.0, 150.0, 200.0, 250.0, 300.0, 400.0, 500.0],
+#             [2.0, 1.7, zero(), -3.4, -8.8, -26.2, -54.8]]
+#    w308.set_long_range_trajectory(long_range_trajectory=w308_long_range)
+#
+#    return w308
 
 class Cartridge:
     """ Represents a catridge object, 
@@ -167,41 +155,17 @@ class Cartridge:
     
     def plot_trajectory(self):
         traj = np.array(self.trajectory) 
-<<<<<<< HEAD
         tr, = plt.plot(traj[:,X] / 3, traj[:,Y] * 12, 'b')
         plt.xlabel("Yards")
         plt.ylabel("Inches")
         plt.title("Bullet Trajectory")
-=======
-        tr, = plt.plot(traj[:,X]/3, traj[:,Y]*12, 'k')
-        plt.xlabel("Yards")
-        plt.ylabel("Inches")
->>>>>>> 9261db3444bab7de134a36b69c6c5bf6a9342dc0
         return tr
-    
-    def plot_long_range_trajectory(self):
-<<<<<<< HEAD
-        lrt, = plt.plot(self.lrt[0,:], self.lrt[1,:], 'sr')
-        return lrt
-    
-    
-    def plot_short_range_trajectory(self):
-        srt, = plt.plot(self.srt[0,:], self.srt[1,:], '+g')
-        return srt
-=======
-        """ Plot the tracjectory 
-            as inches vs yards 
-        """
-        lrt, = plt.plot(self.ltr[0,:], self.ltr[1,:], 'sr')
-        return lrt 
     
     def plot_short_range_trajectory(self):
         srt, = plt.plot(self.srt[0,:], self.srt[1,:], '.c')
 
     def plot_long_range_trajectory(self):
-        lrt, = plt.plot(self.lrt[0, :], self.lrt[1, :], '4b')
->>>>>>> 9261db3444bab7de134a36b69c6c5bf6a9342dc0
-    
+        lrt, = plt.plot(self.lrt[0, :], self.lrt[1, :], '4b') 
      
     def set_long_range_trajectory(self, long_range_trajectory=smpl_long_range()):
         """ Set the long range trajectory. Assumes that the trajectory are inches vs yards.
