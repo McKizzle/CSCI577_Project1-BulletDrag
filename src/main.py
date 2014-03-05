@@ -8,7 +8,8 @@ import BallisticModel as bm
 import Cartridge as ct
 
 def main():
-    sbct = test_ct()
+    #sbct = test_ct()
+    dan_test()
     #print sbct.elevation_at(200.0 * 3.0)
      
     #test_w308()
@@ -28,6 +29,26 @@ def test_ct():
     plt.show()
 
     return sbct;
+
+def dan_test():
+    import Projectile as p
+    #kg=1
+    #while kg==1:
+    #	angle=float(input('enter barrel angle (degrees) '))
+    #	vel=float(input('enter muzzle velocity (feet/second) '))
+    #	bc=float(input('enter ballistic coefficient '))
+    #	w=float(input('enter bullet weight (grains) '))
+    #	tf=float(input('enter simulation duration (seconds) '))
+    #	g=input('enter standard projectile (1,2,5,7,8) ')
+    #	pr=p.Projectile([0.,0.],angle,vel,bc,w,g)
+    #	pr.fire(0.,tf)
+    #	pr.plotme()
+    #	kg=input('enter 1 to repeat, 0 to exit ')
+
+    pr=p.Projectile([0.,0.],0.065,2820.,.314,150.,1)
+    pr.fire(0,0.5)
+    pr.find_angle(200.0)
+    pr.plotme()
 
 #def test_w308():
 #    w308 = ct.winchester_308_remmignton_express()
