@@ -8,15 +8,19 @@ import BallisticModel as bm
 import Cartridge as ct
 
 def main():
-    test_ct()
+    sbct = test_ct()
+    print sbct.elevation_at(200.0 * 3.0)
 
 def test_ct():
     sbct = ct.smpl_cartridge()
-    sbct.set_fireing_velocity_angle()
-    sbct.fire(0, 0.25, 0.001)
-    sbct.plot_trajectory()
-    sbct.plot_short_range_trajectory()
-    plt.show()
+    sbct.muzz_vel = 3300.0
+    sbct.set_fireing_angle()
+    sbct.fire()
+    #sbct.plot_trajectory()
+    #sbct.plot_long_range_trajectory()
+    #plt.show()
+
+    return sbct;
 
 if __name__ == '__main__':
     main()

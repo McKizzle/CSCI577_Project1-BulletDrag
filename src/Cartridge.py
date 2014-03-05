@@ -28,11 +28,28 @@ def smpl_short_range():
 
 def smpl_cartridge():
     smpl = Cartridge()
-    smpl.set_fireing_velocity_angle()
+    smpl.set_fireing_angle()
     smpl.set_short_range_trajectory()
     smpl.set_long_range_trajectory()
 
     return smpl
+
+def zero_in(cartridge, starting_theta, dist, tol, r):
+    """ Takes a Cartridge and zeros it in the specified distance within 
+        a tolerance using a binary search algorithm. 
+
+        :param cartridge: the cartridge to zero in
+        :param starting_theta: the starting angle in degrees. 
+        :param dist: the distance to zero in on.
+        :param tol: the tolorance 
+        :param r: the ratio (affects the speed at which the search algorithm converges
+    """
+    
+    zeroed_in = False
+    theta = starting_theta
+    while not zeroed_in:
+        catridge.set_fireing_angle(theta)
+        print "Searching"
 
 
 class Cartridge:
@@ -50,16 +67,20 @@ class Cartridge:
         self.ballistic_coefficient = float(ballistic_coefficient)
         self.times = [0]
         self.ballistic_model = ballistic_model
+        self.dt = 0.001
+        self.t_0 = 0.0
+        self.t_max = 0.5
+        self.muzz_vel = 3300.0
     
-    def set_fireing_velocity_angle(self, vel=3300, theta=0.06):
+    def set_fireing_angle(self, theta=0.06):
         """ Sets the x, y velocities based on an initial velocity and 
             fireing angle.
             :param vel: Velocity in ft/s (def: 3300ft/s)
             :param theta: Firing angle in degrees (def: 0.0 deg)
         """
         theta = np.pi / 180.0 * float(theta) #convert to radians.
-        self.trajectory[-1][VX] = float(vel) * np.cos(float(theta))
-        self.trajectory[-1][VY] = float(vel) * np.sin(float(theta))
+        self.trajectory[-1][VX] = float(self.muzz_vel) * np.cos(float(theta))
+        self.trajectory[-1][VY] = float(self.muzz_vel) * np.sin(float(theta))
 
     def move(self, t, x, g=32.1522):
         """ ODE system for bullet movement """
@@ -80,30 +101,67 @@ class Cartridge:
         
         return force
 
-    def fire(self, t_0, t_max, dt):
+    def fire(self):
         """ Launch the bullet """
         intgr = scint.ode(self.move)
         intgr.set_integrator('dopri5', method = 'adams')
         intgr.set_initial_value(self.trajectory[-1])
-        times = np.arange(t_0, t_max, dt)
+        times = np.arange(self.t_0, self.t_max, self.dt)
         for t in times[1:]:
-            intgr.integrate(intgr.t + dt)
+            intgr.integrate(intgr.t + self.dt)
             self.trajectory.append(intgr.y)
         self.times = times
+
+    def elevation_at(self, dist):
+        """ Finds the elevation at a specified distance. 
+            Don't forget to pass in the distance as feet
+        """
+        traj = np.array(self.trajectory)
+        print traj.shape
+
+        for i in range(0, traj.shape[0] - 1):
+            print "---------------------------------------"
+            print "dist: %0.3f" % dist
+            print "x_%i: %0.3f" % (i, traj[i, 0])
+            print "x_%i: %0.3f" % (i + 1, traj[i + 1, 0])
+            if traj[i, 0] >= dist and traj[i + 1, 0] < dist:
+                bounds = np.array([traj[i], traj[i + 1]])
+                print bounds
+                return 0
+
+        #for i in range(0, len(self.__model[:,0]) - 1, 1):
+        #    if(vels[i] >= vel and vels[i+1] < vel):
+        #        # Perform linear interpolation
+        #        bounds = np.array([self.__model[i], self.__model[i+1]])
+        #        vp = bounds[:, 0]
+
+        #        # Linear interp for A(v)
+        #        fp = bounds[:, 1]
+        #        Av = np.interp(vel, vp, fp)
+
+        #        # Linear interp for M(v)
+        #        fp = bounds[:, 2]
+        #        Mv = np.interp(vel, vp, fp)
+
+        #        break
     
     def plot_trajectory(self):
         traj = np.array(self.trajectory) 
-        tr, = plt.plot(traj[:,X], traj[:,Y], 'b')
+        tr, = plt.plot(traj[:,X] / 3, traj[:,Y] * 12, 'b')
+        plt.xlabel("Yards")
+        plt.ylabel("Inches")
+        plt.title("Bullet Trajectory")
         return tr
    
     
     def plot_long_range_trajectory(self):
-        lrt, = plt.plot(self.ltr[0,:], self.ltr[1,:], 'sr')
+        lrt, = plt.plot(self.lrt[0,:], self.lrt[1,:], 'sr')
         return lrt
     
     
     def plot_short_range_trajectory(self):
         srt, = plt.plot(self.srt[0,:], self.srt[1,:], '+g')
+        return srt
     
      
     def set_long_range_trajectory(self, long_range_trajectory=smpl_long_range()):
@@ -119,6 +177,11 @@ class Cartridge:
                 second contains the y-vals. 
         """
         self.srt = short_range_trajectory 
+
+    def set_integration_params(start_time, max_time, dt):
+        self.t_0 = start_time
+        self.t_max = max_time
+        self.dt = dt
 
     def __str__(self):
         wg = "Grains: %0.2f\n" % self.mass_grains
