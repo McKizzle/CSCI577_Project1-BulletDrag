@@ -9,7 +9,8 @@ import Cartridge as ct
 
 def main():
     #sbct = test_ct()
-    dan_test()
+    #dan_test()
+    code_merge_test() 
     #print sbct.elevation_at(200.0 * 3.0)
      
     #test_w308()
@@ -21,8 +22,6 @@ def test_ct():
     sbct.set_fireing_angle()
     theta = ct.zero_in(sbct, 0.06, 600, 0.0001, 0.95)
     print "Theta: %0.7f" % theta
-    sbct.set_fireing_angle(theta)
-    sbct.fire()
     print "Y: %0.10f" % sbct.elevation_at(600)
     sbct.plot_trajectory()
     sbct.plot_long_range_trajectory()
@@ -30,29 +29,18 @@ def test_ct():
 
     return sbct;
 
-def code_merge_test()
+# Test the merging process. 
+def code_merge_test():
     import Projectile as p
-    pr=p.Projectile([0.,0.],0.065,2820.,.314,150.,bm.GM1())
-    pr.fire(0,0.5)
-    pr.find_angle(200.0)
+    
+    pr=p.Projectile([0.,0.],0.065,2820.,.314,150.,bm.G1())
+    theta = p.zero_in(pr, 0.06, 600, 0.0001, 0.95)
     pr.plotme()
 
 def dan_test():
     import Projectile as p
-    #kg=1
-    #while kg==1:
-    #	angle=float(input('enter barrel angle (degrees) '))
-    #	vel=float(input('enter muzzle velocity (feet/second) '))
-    #	bc=float(input('enter ballistic coefficient '))
-    #	w=float(input('enter bullet weight (grains) '))
-    #	tf=float(input('enter simulation duration (seconds) '))
-    #	g=input('enter standard projectile (1,2,5,7,8) ')
-    #	pr=p.Projectile([0.,0.],angle,vel,bc,w,g)
-    #	pr.fire(0.,tf)
-    #	pr.plotme()
-    #	kg=input('enter 1 to repeat, 0 to exit ')
 
-    pr=p.Projectile([0.,0.],0.065,2820.,.314,150.,1)
+    pr=p.Projectile([0.,0.],0.065,2820.,.314,150.,bm.G1())
     pr.fire(0,0.5)
     pr.find_angle(200.0)
     pr.plotme()
