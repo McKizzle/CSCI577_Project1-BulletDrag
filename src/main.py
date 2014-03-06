@@ -30,6 +30,13 @@ def test_ct():
 
     return sbct;
 
+def code_merge_test()
+    import Projectile as p
+    pr=p.Projectile([0.,0.],0.065,2820.,.314,150.,bm.GM1())
+    pr.fire(0,0.5)
+    pr.find_angle(200.0)
+    pr.plotme()
+
 def dan_test():
     import Projectile as p
     #kg=1
