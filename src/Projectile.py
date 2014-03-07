@@ -4,6 +4,35 @@ import matplotlib.pyplot as plt
 import math as m
 import BallisticModel as bm
 import scipy.integrate as integrate
+import yaml as yaml
+
+GRS = "grains"
+BCF = "ballistic coefficient"
+MVL = "muzzle velocity"
+VTR = "velocity trajectory"
+SRT = "short range trajectory"
+LRT = "long range trajectory"
+
+def dictionary_for_bullet(dictionary):
+    """ Converts a dictionary into a bullet
+        Defaults to G1 for all bullets. 
+    """
+    xy_init  = [0.0, 0.0]
+    angle    = 0.065 # zero degrees
+    velocity = dictionary[MVL]
+    bc = dictionary[BCF]
+    gr = dictionary[GRS]
+    projectile = Projectile(xy_init, angle, velocity, bc, gr)
+    projectile.vtr = dictionary[VTR]
+    projectile.lrt = dictionary[LRT]
+    projectile.srt = dictionary[SRT]
+    return projectile
+
+def load_yamlfile(file_name):
+    """ Loads a YAML file as a dictionary """
+    stream = open(file_name, "r")
+    bullets = yaml.load(stream)
+    return bullets
 
 def plot_trajectory(simulated, golden):
     """ Plot the trajectory of a bullet 
@@ -70,7 +99,7 @@ def zero_in(cartridge, starting_theta, dist, tol, r):
     return theta
 
 class Projectile:
-    def __init__(self, xy_init, angle, velocity, bc, gr, sproj = bm.G1):
+    def __init__(self, xy_init, angle, velocity, bc, gr, sproj = bm.G1()):
         self.xy_init  =  np.array(xy_init).astype(float) # Convert array into floats.
         
         # Set initial directional velocity.
@@ -95,6 +124,13 @@ class Projectile:
         self.t_0 = 0.0
         self.t_max = 0.5
         self.dt = 0.001
+        
+        # Velocity Trajectory
+        self.vrt = np.array([[100, 2889], [200, 2514], [300, 2168], [400, 1851], [500, 1568]])
+        # Long Range Trajectory
+        self.lrt = np.array([[100., 2.0], [150., 1.7], [200., 0.], [250., -3.4], [300., -8.8], [400., -26.2], [500., -54.8]])
+        # Short Range Trajectory
+        self.srt = np.array([[50., 0.0], [100., 0.], [150., -1.2], [200., -3.9], [250., -8.4], [300., -14.7]])
 
     def move(self, t, x):
         """ ODE System that models bullet movement. Send to ODE solver. """
