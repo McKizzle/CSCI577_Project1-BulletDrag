@@ -38,7 +38,7 @@ def load_yamlfile(file_name):
     bullets = yaml.load(stream)
     return bullets
 
-def plot_trajectories(bullet, bullet_golden):
+def plot_trajectories(bullet):
     """ Plot and compare the bullet trajectory and velocity to the 
         long range trajectory and velocity golden data.
         :param bullet: A bullet to plot.
@@ -47,17 +47,18 @@ def plot_trajectories(bullet, bullet_golden):
     plt.subplots(nrows=2, ncols=1)
     plt.tight_layout()
     plt.subplot(211)
-    bullet.plotme()
-    bullet.plot_lrt()
+    me = bullet.plotme()
+    lrt = bullet.plot_lrt()
     title = "Trajectory of a %s: %d grain Bullet and %s Model" % (bullet.name, bullet.mass, bullet.model.name)
     plt.title(title)
+    plt.legend([me, lrt], ["Model", "Data"])
     plt.subplot(212)
-    bullet.plot_vel()
-    bullet.plot_vrt()
+    vel = bullet.plot_vel()
+    vrt = bullet.plot_vrt()
     title = "Velocity of a %s: %d grain Bullet and %s Model" % (bullet.name, bullet.mass, bullet.model.name)
     plt.title(title)
-    plt.show()
-    
+    plt.legend([vel, vrt], ["Model", "Data"])
+ 
 
 def zero_in(cartridge, starting_theta, dist, tol, r):
     """ Takes a Projectile and zeros it in the specified distance within 
@@ -179,27 +180,35 @@ class Projectile:
         
     def plotme(self):
         x = np.array(self.x)
-        plt.plot(x[:, 0]/3., x[:, 1]*12., 'k')
+        pltme, = plt.plot(x[:, 0]/3., x[:, 1]*12., 'k')
         plt.xlabel("x-position (yards)")
         plt.ylabel("y-position (inches)")
+
+        return pltme
 
     def plot_vel(self): 
         x = np.array(self.x)
         vels = [np.linalg.norm(x[i,2:4]) for i in range(0, x.shape[0])]
         vels = np.array(vels)
 
-        plt.plot(x[:, 0]/3., vels, 'k')
+        plt_vel, = plt.plot(x[:, 0]/3., vels, 'k')
         plt.ylabel(r"velocity $\frac{ft}{s}$")
         plt.xlabel("x-position (yards)")
 
+        return plt_vel
+
     def plot_vrt(self):
-        plt.plot(self.vrt[:, 0], self.vrt[:, 1], '-rs')
+        plt_vrt, = plt.plot(self.vrt[:, 0], self.vrt[:, 1], '-rs')
+        return plt_vrt
 
     def plot_lrt(self):
-        plt.plot(self.lrt[:, 0], self.lrt[:, 1], '-rs')
+        plt_lrt, = plt.plot(self.lrt[:, 0], self.lrt[:, 1], '-rs')
+        return plt_lrt
 
     def plot_srt(self):
-        plt.plot(self.srt[:, 0], self.srt[:, 1], '-rs')
+        plt_srt = plt.plot(self.srt[:, 0], self.srt[:, 1], '-rs')
+        return plt_srt
+        
 
     def reset_trajectory(self):
         """ Reset the trajectory to its initial values. 
