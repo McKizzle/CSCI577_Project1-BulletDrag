@@ -5,15 +5,41 @@ import math as m
 import BallisticModel as bm
 import scipy.integrate as integrate
 
+def plot_trajectory(simulated, golden):
+    """ Plot the trajectory of a bullet 
+        :param simulated: A projectile object that has been fired.
+        :param golden: A real projectile object that has been fired. 
+            Assumes that the projectile is an np array with three columns.
+            The first for the x-postions (feet), second for the y-positions (inches), 
+            and the third for the energy values.
+    """
+    sim_traj = np.array(simulated.x)
+    sim_vels = 0 # Calculate the velocities.
+
+    plt.subplots(nrows=2, ncols=1)
+    plt.tight_layout()
+    plt.subplot(211)
+    plt.plot(sim_traj[:, 0] / 3., sim_traj[:, 1]*12., 'k')
+    plt.title("Height vs Position")
+    plt.ylabel("y-position (inches)")
+    plt.xlabel("x-position (yards)")
+    plt.subplot(212)
+    plt.plot(sim_traj[:, 0] / 3., sim_traj[:, 2], 'k')
+    plt.title("Velocity vs Position")
+    plt.ylabel(r"velocity $\frac{ft}{s}$")
+    plt.xlabel("x-position (yards)")
+    plt.show()
+    
+
 def zero_in(cartridge, starting_theta, dist, tol, r):
     """ Takes a Projectile and zeros it in the specified distance within 
-        a tolerance using a binary search algorithm. 
+        a tolerance using a 'geometric' search algorithm. 
 
         :param cartridge: the cartridge to zero in
         :param starting_theta: the starting angle in degrees. 
         :param dist: the distance to zero in on.
         :param tol: the tolorance 
-        :param r: the ratio (affects the speed at which the search algorithm converges
+        :param r: the ratio (affects the speed at which the search algorithm converges)
     """
  
     zeroed_in = False
@@ -44,22 +70,26 @@ def zero_in(cartridge, starting_theta, dist, tol, r):
     return theta
 
 class Projectile:
-
     def __init__(self, xy_init, angle, velocity, bc, gr, sproj = bm.G1):
         self.xy_init  =  np.array(xy_init).astype(float) # Convert array into floats.
+        
+        # Set initial directional velocity.
         self.theta = ((float(angle)/360.0)*(2.0*np.pi))  # Convert to radians
         self.v_init = float(velocity) #fps
         self.vx_init = self.v_init*np.cos(self.theta)
         self.vy_init = self.v_init*np.sin(self.theta)
-        self.bc = float(bc)
-
-        self.model = sproj # Simplified the balistic model setting process makes it easier to read. 
+        
+        self.bc = float(bc) # Ballistic coefficient.
+        
+        # Simplified the balistic model setting process makes it easier to read. 
+        self.model = sproj 
     
         self.mass = float(gr)
         self.t = np.array([])
 
         #[x, y, vx, vy]
-        self.x = [np.array([self.xy_init[0], self.xy_init[1], self.vx_init, self.vy_init])] # Initial Trajectory
+        # Initial Trajectory
+        self.x = [np.array([self.xy_init[0], self.xy_init[1], self.vx_init, self.vy_init])] 
 
         # Default integration rules (seconds)
         self.t_0 = 0.0
@@ -71,14 +101,32 @@ class Projectile:
         v = np.array([x[2], x[3]])
         vmag = np.linalg.norm(v)
         vu = v/vmag
-        am = self.model.get_am(vmag)
-        f = ((am[0]/self.bc)*(vmag**((am[1])-1.)))
+        
+        f = self.f(vmag) 
         ax = -f*(vu[0])*(1./self.mass)
         ay = -32.1522-f*(vu[1])*(1./self.mass)
+        
         out = np.array([v[0], v[1], ax, ay])
+        
         return out
 
+    def f(self, vel):
+        """ Drag function """
+        Av, Mv = self.model.get_am(vel)
+        force = Av / self.bc * vel **(Mv - 1) 
+         
+        return force
+
+    def set_integration_params(self, start_time, max_time, dt):
+        """ Set the start time, stop time, and dt values that
+            the fire method will use.
+        """
+        self.t_0 = start_time
+        self.t_max = max_time
+        self.dt = dt
+
     def fire(self):
+        """ Start the simulation """
         t0 = self.t_0
         tf = self.t_max
         dt = self.dt
@@ -93,6 +141,7 @@ class Projectile:
         self.t = times
         
     def plotme(self):
+        """ Plot the trajectory """
         lr = np.array([[100., 2.0], [150., 1.7], [200., 0.], [250., -3.4], [300., -8.8], [400., -26.2], [500., -54.8]])
         sr = np.array([[50., 0.0], [100., 0.], [150., -1.2], [200., -3.9], [250., -8.4], [300., -14.7]])
         self.x = np.array(self.x)
@@ -101,16 +150,14 @@ class Projectile:
         plt.show()
 
     def reset_trajectory(self):
+        """ Reset the trajectory to its initial values. 
+            Make sure to set the fireing angle afterwards
+        """
         self.x = [np.array([self.xy_init[0], self.xy_init[1], 0.0 , 0.0])] # Initial Trajectory
 
     def get_theta(self):
         """ Returns the fireing angle in radians """
         return self.theta
-
-    def set_integration_params(self, start_time, max_time, dt):
-        self.t_0 = start_time
-        self.t_max = max_time
-        self.dt = dt
 
     def set_theta(self, angle):
         """ Set the fireing angle. Expects the angle to be in radians """
@@ -120,11 +167,9 @@ class Projectile:
         """ Sets the initial x y velocitites based on the fireing angle.  
             :param theta: Firing angle in degrees (def: 0.0 deg)
         """
-        VX = 2
-        VY = 3
         theta  =  np.pi / 180.0 * float(theta)  #convert to radians.
-        self.x[-1][VX]  =  float(self.v_init) * np.cos(float(theta))
-        self.x[-1][VY]  =  float(self.v_init) * np.sin(float(theta))
+        self.x[-1][2]  =  float(self.v_init) * np.cos(float(theta)) # Set the X velocity.
+        self.x[-1][3]  =  float(self.v_init) * np.sin(float(theta)) # Set the Y velocity.
                                                                                 
     def get_x(self):
         """ Return the trajectory """
