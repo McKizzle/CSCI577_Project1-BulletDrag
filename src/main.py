@@ -9,8 +9,8 @@ import Projectile as pjtl
 def main():
     bullet_data = pjtl.load_yamlfile("BulletData.yaml")
     sample_bullet = pjtl.dictionary_for_bullet(bullet_data["cartridges"][0.223]["PRA223RB"])
-    sample_bullet.fire()
-    pjtl.plot_trajectory(sample_bullet, 0)
+    theta =pjtl.zero_in(sample_bullet, 0.065, 600.0, 0.0001, 0.95)
+    pjtl.plot_trajectories(sample_bullet, 0)
 
 if __name__ == '__main__':
     main()

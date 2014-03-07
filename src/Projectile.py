@@ -6,6 +6,8 @@ import BallisticModel as bm
 import scipy.integrate as integrate
 import yaml as yaml
 
+LB_GRAIN = 1.0/7000.0
+
 GRS = "grains"
 BCF = "ballistic coefficient"
 MVL = "muzzle velocity"
@@ -22,10 +24,10 @@ def dictionary_for_bullet(dictionary):
     velocity = dictionary[MVL]
     bc = dictionary[BCF]
     gr = dictionary[GRS]
-    projectile = Projectile(xy_init, angle, velocity, bc, gr)
-    projectile.vtr = dictionary[VTR]
-    projectile.lrt = dictionary[LRT]
-    projectile.srt = dictionary[SRT]
+    projectile     = Projectile(xy_init, angle, velocity, bc, gr)
+    projectile.vtr = np.array(dictionary[VTR])
+    projectile.lrt = np.array(dictionary[LRT])
+    projectile.srt = np.array(dictionary[SRT])
     return projectile
 
 def load_yamlfile(file_name):
@@ -34,29 +36,22 @@ def load_yamlfile(file_name):
     bullets = yaml.load(stream)
     return bullets
 
-def plot_trajectory(simulated, golden):
-    """ Plot the trajectory of a bullet 
-        :param simulated: A projectile object that has been fired.
-        :param golden: A real projectile object that has been fired. 
-            Assumes that the projectile is an np array with three columns.
-            The first for the x-postions (feet), second for the y-positions (inches), 
-            and the third for the energy values.
+def plot_trajectories(bullet, bullet_golden):
+    """ Plot and compare the bullet trajectory and velocity to the 
+        long range trajectory and velocity golden data.
+        :param bullet: A bullet to plot.
     """
-    sim_traj = np.array(simulated.x)
-    sim_vels = 0 # Calculate the velocities.
 
     plt.subplots(nrows=2, ncols=1)
     plt.tight_layout()
     plt.subplot(211)
-    plt.plot(sim_traj[:, 0] / 3., sim_traj[:, 1]*12., 'k')
+    bullet.plotme()
+    bullet.plot_lrt()
     plt.title("Height vs Position")
-    plt.ylabel("y-position (inches)")
-    plt.xlabel("x-position (yards)")
     plt.subplot(212)
-    plt.plot(sim_traj[:, 0] / 3., sim_traj[:, 2], 'k')
+    bullet.plot_vel()
+    bullet.plot_vrt()
     plt.title("Velocity vs Position")
-    plt.ylabel(r"velocity $\frac{ft}{s}$")
-    plt.xlabel("x-position (yards)")
     plt.show()
     
 
@@ -66,7 +61,7 @@ def zero_in(cartridge, starting_theta, dist, tol, r):
 
         :param cartridge: the cartridge to zero in
         :param starting_theta: the starting angle in degrees. 
-        :param dist: the distance to zero in on.
+        :param dist: the distance to zero in on. Expects the distance to be yards.
         :param tol: the tolorance 
         :param r: the ratio (affects the speed at which the search algorithm converges)
     """
@@ -113,7 +108,7 @@ class Projectile:
         # Simplified the balistic model setting process makes it easier to read. 
         self.model = sproj 
     
-        self.mass = float(gr)
+        self.mass = float(gr) #* LB_GRAIN  
         self.t = np.array([])
 
         #[x, y, vx, vy]
@@ -132,15 +127,15 @@ class Projectile:
         # Short Range Trajectory
         self.srt = np.array([[50., 0.0], [100., 0.], [150., -1.2], [200., -3.9], [250., -8.4], [300., -14.7]])
 
-    def move(self, t, x):
+    def move(self, t, x, g=32.1522):
         """ ODE System that models bullet movement. Send to ODE solver. """
         v = np.array([x[2], x[3]])
         vmag = np.linalg.norm(v)
         vu = v/vmag
         
         f = self.f(vmag) 
-        ax = -f*(vu[0])*(1./self.mass)
-        ay = -32.1522-f*(vu[1])*(1./self.mass)
+        ax = -f*(v[0])*vu[0]
+        ay = -g-f*(v[1])*vu[1]
         
         out = np.array([v[0], v[1], ax, ay])
         
@@ -149,7 +144,7 @@ class Projectile:
     def f(self, vel):
         """ Drag function """
         Av, Mv = self.model.get_am(vel)
-        force = Av / self.bc * vel **(Mv - 1) 
+        force = Av / self.bc * vel**(Mv - 1) ## * 100000
          
         return force
 
@@ -177,13 +172,28 @@ class Projectile:
         self.t = times
         
     def plotme(self):
-        """ Plot the trajectory """
-        lr = np.array([[100., 2.0], [150., 1.7], [200., 0.], [250., -3.4], [300., -8.8], [400., -26.2], [500., -54.8]])
-        sr = np.array([[50., 0.0], [100., 0.], [150., -1.2], [200., -3.9], [250., -8.4], [300., -14.7]])
-        self.x = np.array(self.x)
-        plt.plot((self.x[:, 0]/3.), (self.x[:, 1]*12.), 'r')
-        plt.plot(lr[:, 0], (lr[:, 1]), 'og')
-        plt.show()
+        x = np.array(self.x)
+        plt.plot(x[:, 0]/3., x[:, 1]*12., 'k')
+        plt.xlabel("x-position (yards)")
+        plt.ylabel("y-position (inches)")
+
+    def plot_vel(self): 
+        x = np.array(self.x)
+        vels = [np.linalg.norm(x[i,2:4]) for i in range(0, x.shape[0])]
+        vels = np.array(vels)
+
+        plt.plot(x[:, 0]/3., vels, 'k')
+        plt.ylabel(r"velocity $\frac{ft}{s}$")
+        plt.xlabel("x-position (yards)")
+
+    def plot_vrt(self):
+        plt.plot(self.vrt[:, 0], self.vrt[:, 1], '-rs')
+
+    def plot_lrt(self):
+        plt.plot(self.lrt[:, 0], self.lrt[:, 1], '-rs')
+
+    def plot_srt(self):
+        plt.plot(self.srt[:, 0], self.srt[:, 1], '-rs')
 
     def reset_trajectory(self):
         """ Reset the trajectory to its initial values. 
