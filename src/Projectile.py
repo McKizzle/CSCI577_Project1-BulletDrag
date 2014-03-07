@@ -14,6 +14,7 @@ MVL = "muzzle velocity"
 VTR = "velocity trajectory"
 SRT = "short range trajectory"
 LRT = "long range trajectory"
+NME = "name"
 
 def dictionary_for_bullet(dictionary):
     """ Converts a dictionary into a bullet
@@ -28,6 +29,7 @@ def dictionary_for_bullet(dictionary):
     projectile.vtr = np.array(dictionary[VTR])
     projectile.lrt = np.array(dictionary[LRT])
     projectile.srt = np.array(dictionary[SRT])
+    projectile.name = dictionary[NME]
     return projectile
 
 def load_yamlfile(file_name):
@@ -47,11 +49,13 @@ def plot_trajectories(bullet, bullet_golden):
     plt.subplot(211)
     bullet.plotme()
     bullet.plot_lrt()
-    plt.title("Height vs Position")
+    title = "Trajectory of a %s: %d grain Bullet and %s Model" % (bullet.name, bullet.mass, bullet.model.name)
+    plt.title(title)
     plt.subplot(212)
     bullet.plot_vel()
     bullet.plot_vrt()
-    plt.title("Velocity vs Position")
+    title = "Velocity of a %s: %d grain Bullet and %s Model" % (bullet.name, bullet.mass, bullet.model.name)
+    plt.title(title)
     plt.show()
     
 
@@ -127,13 +131,15 @@ class Projectile:
         # Short Range Trajectory
         self.srt = np.array([[50., 0.0], [100., 0.], [150., -1.2], [200., -3.9], [250., -8.4], [300., -14.7]])
 
+        self.name = "Sample Cartridge"
+
     def move(self, t, x, g=32.1522):
         """ ODE System that models bullet movement. Send to ODE solver. """
         v = np.array([x[2], x[3]])
         vmag = np.linalg.norm(v)
         vu = v/vmag
         
-        f = self.f(vmag) 
+        f = self.model.f(vmag, self.bc) 
         ax = -f*(v[0])*vu[0]
         ay = -g-f*(v[1])*vu[1]
         
@@ -141,12 +147,12 @@ class Projectile:
         
         return out
 
-    def f(self, vel):
-        """ Drag function """
-        Av, Mv = self.model.get_am(vel)
-        force = Av / self.bc * vel**(Mv - 1) ## * 100000
-         
-        return force
+    #def f(self, vel):
+    #    """ Drag function """
+    #    Av, Mv = self.model.get_am(vel)
+    #    force = Av / self.bc * vel**(Mv - 1) ## * 100000
+    #     
+    #    return force
 
     def set_integration_params(self, start_time, max_time, dt):
         """ Set the start time, stop time, and dt values that
