@@ -4,7 +4,8 @@
 cartridges:
     .223 : 
         "PRA223RB":
-            grains : 50
+            "name" : "Remmington .223"
+            "grains" : 50
             "bullet style" : AccuTip™-V Boat Tail A
             "cartridge type" : Premier® AccuTip™
             "primer number" : "7 1/2"
@@ -15,7 +16,8 @@ cartridges:
             "long range trajectory" : [[100., 2.0], [150., 1.7], [200., 0.], [250., -3.4], [300., -8.8], [400., -26.2], [500., -54.8]]
     .308 :
         "R308W1":
-            grains: 150
+            "name" : "308 Winchester"
+            "grains": 150
             "bullet style" : Pointed Soft Point Core-Lokt®
             "cartridge type" : Remington® Express®
             "primer number" : "9 1/2"
