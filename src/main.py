@@ -18,6 +18,11 @@ def main():
     pjtl.plot_trajectories(w308)
     plt.savefig("winchester308.png", bbox_inches="tight", dpi=240)
 
+    lm338 = pjtl.dictionary_for_bullet(bullet_data["cartridges"][0.338]["4318013"])
+    #print lm338
+    theta = pjtl.zero_in(lm338, 0.065, 109.361 * 3.0, 0.0001, 0.95)
+    pjtl.plot_trajectories(lm338)
+    plt.savefig("lapuamagnum338.png", bbox_inches="tight", dpi=240)
+
 if __name__ == '__main__':
     main()
-
