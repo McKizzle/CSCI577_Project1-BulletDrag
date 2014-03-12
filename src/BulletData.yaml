@@ -21,7 +21,7 @@ cartridges:
             "bullet style" : "Pointed Soft Point Core-Lokt®"
             "cartridge type" : "Remington® Express®"
             "primer number" : "9 1/2"
-            "ballistic coefficient" : "0.314"
+            "ballistic coefficient" : 0.314
             "muzzle velocity" : 2820
             "velocity trajectory" : [[100, 2533], [200, 2263], [300, 2009], [400, 1774], [500, 1560]]
             "short range trajectory" : [[50., 0.0], [100., 0.], [150., -1.2], [200., -3.9], [250., -8.4], [300., -14.7]]
@@ -32,7 +32,7 @@ cartridges:
             "grains" : 299.38775296 # converted from grams
             "bullet style" : "Scenar"
             "cartridge type" : "scenar"
-            "ballistic coefficient" :
+            "ballistic coefficient" : 0.242
             "muzzle velocity" : 2723.1
             "velocity trajectory" : [[109.361, 2588.58], [218.723, 2460.63], [328.084, 2335.96], [656.168, 1984.91], [874.891, 1768.37], [1093.61, 1568.24]]
             "sited at" : 109.361
