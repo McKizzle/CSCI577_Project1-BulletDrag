@@ -2,12 +2,12 @@
 # sudo pip2.7 install pyyaml
 
 cartridges:
-    .223 : 
+    .223 :
         "PRA223RB":
             "name" : "Remmington .223"
             "grains" : 50
-            "bullet style" : AccuTip™-V Boat Tail A
-            "cartridge type" : Premier® AccuTip™
+            "bullet style" : "AccuTip™-V Boat Tail A"
+            "cartridge type" : "Premier® AccuTip™"
             "primer number" : "7 1/2"
             "ballistic coefficient" : 0.242
             "muzzle velocity" : 3300
@@ -18,17 +18,23 @@ cartridges:
         "R308W1":
             "name" : "308 Winchester"
             "grains": 150
-            "bullet style" : Pointed Soft Point Core-Lokt®
-            "cartridge type" : Remington® Express®
+            "bullet style" : "Pointed Soft Point Core-Lokt®"
+            "cartridge type" : "Remington® Express®"
             "primer number" : "9 1/2"
-            "ballistic coefficient" : 0.314
+            "ballistic coefficient" : "0.314"
             "muzzle velocity" : 2820
             "velocity trajectory" : [[100, 2533], [200, 2263], [300, 2009], [400, 1774], [500, 1560]]
             "short range trajectory" : [[50., 0.0], [100., 0.], [150., -1.2], [200., -3.9], [250., -8.4], [300., -14.7]]
             "long range trajectory" : [[100., 2.0], [150., 1.7], [200., 0.], [250., -3.4], [300., -8.8], [400., -26.2], [500., -54.8]]
-
-
-    
-
-
-    
+    .338 :
+        "4318013": # All of the data has been converted to imperial.
+            "name" : "338 Lapua Magnum"
+            "grains" : 299.38775296 # converted from grams
+            "bullet style" : "Scenar"
+            "cartridge type" : "scenar"
+            "ballistic coefficient" :
+            "muzzle velocity" : 2723.1
+            "velocity trajectory" : [[109.361, 2588.58], [218.723, 2460.63], [328.084, 2335.96], [656.168, 1984.91], [874.891, 1768.37], [1093.61, 1568.24]]
+            "sited at" : 109.361
+            "short range trajectory" :
+            "long range trajectory" : [[109.361, 0], [218.723, -4.606299], [328.084, -15.98425], [656.168, -99.37008], [874.891, -205.94488], [1093.61, -365.70866]]
