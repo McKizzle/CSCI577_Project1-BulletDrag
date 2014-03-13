@@ -85,7 +85,7 @@ def compare_338_models():
     plt.ylabel(r"Inches (in)")
     plt.legend([l_1, l_2, l_5, l_7, l_8, l_cust, lrt], 
             [bm.G1().name, bm.G2().name, bm.G5().name, bm.G7().name, bm.G8().name, cust_mod.name, "Long Range Traj."])
-    plt.savefig("lapuamagnum338_dist_comp.png", bbox_inches="tight", dpi=240)
+    plt.savefig("../img/lapuamagnum338_dist_comp.png", bbox_inches="tight", dpi=240)
     plt.close()
 
 
@@ -102,7 +102,7 @@ def compare_338_models():
     plt.ylabel(r"Velocity $^{ft}/_s$")
     plt.legend([l_1, l_2, l_5, l_7, l_8, l_cust, lrt], 
             [bm.G1().name, bm.G2().name, bm.G5().name, bm.G7().name, bm.G8().name, cust_mod.name, "Long Range Traj."])
-    plt.savefig("lapuamagnum338_vel_comp.png", bbox_inches="tight", dpi=240)
+    plt.savefig("../img/lapuamagnum338_vel_comp.png", bbox_inches="tight", dpi=240)
     plt.close()
 
 if __name__ == '__main__':
