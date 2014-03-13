@@ -26,6 +26,7 @@ cartridges:
             "velocity trajectory" : [[100, 2533], [200, 2263], [300, 2009], [400, 1774], [500, 1560]]
             "short range trajectory" : [[50., 0.0], [100., 0.], [150., -1.2], [200., -3.9], [250., -8.4], [300., -14.7]]
             "long range trajectory" : [[100., 2.0], [150., 1.7], [200., 0.], [250., -3.4], [300., -8.8], [400., -26.2], [500., -54.8]]
+            "diameter" : 7.8 # in millimeters
     .338 :
         "4318013": # All of the data has been converted to imperial.
             "name" : "338 Lapua Magnum"
@@ -38,4 +39,4 @@ cartridges:
             "sited at" : 109.361
             "short range trajectory" :
             "long range trajectory" : [[109.361, 0], [218.723, -4.606299], [328.084, -15.98425], [656.168, -99.37008], [874.891, -205.94488], [1093.61, -365.70866]]
-            "diameter" : 8.6
+            "diameter" : 8.6 #in millimeters
