@@ -15,6 +15,7 @@ VRT = "velocity trajectory"
 SRT = "short range trajectory"
 LRT = "long range trajectory"
 NME = "name"
+DIM = "diameter"
 
 def dictionary_for_bullet(dictionary):
     """ Converts a dictionary into a bullet
@@ -30,6 +31,7 @@ def dictionary_for_bullet(dictionary):
     projectile.lrt = np.array(dictionary[LRT])
     projectile.srt = np.array(dictionary[SRT])
     projectile.name = dictionary[NME]
+    projectile.diameter = dictionary[DIM]
     return projectile
 
 def load_yamlfile(file_name):
