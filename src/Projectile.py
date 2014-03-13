@@ -145,6 +145,13 @@ class Projectile:
 
         out = np.array([v[0], v[1], ax, ay])
 
+        #print "Vel: %f" % vmag
+        #print "ax:  %f" % ax
+        #print "ay:  %f" % ay
+        #print "vu: ", vu
+
+        #exit()
+
         return out
 
     def set_integration_params(self, start_time, max_time, dt):
@@ -200,6 +207,13 @@ class Projectile:
     def plot_srt(self):
         plt_srt = plt.plot(self.srt[:, 0], self.srt[:, 1], '-rs')
         return plt_srt
+
+    def get_velocity_trajectory(self):
+        x = np.array(self.x)
+        vels = [np.linalg.norm(x[i,2:4]) for i in range(0, x.shape[0])]
+        vels = np.array(vels)
+
+        return vels
 
 
     def reset_trajectory(self):

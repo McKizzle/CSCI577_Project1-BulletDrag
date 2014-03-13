@@ -3,12 +3,6 @@ import pylab as py
 #import matplotlib.pyplot as plt
 import math as m
 
-""" Clintons Ballistic coeficient equation.
-
-y=\left\{\begin{array}{cc} f\left( x \right) & x\leq 1.2 \\ f\left( 1.2 \right)\; -\; e^{-1.2}\; +\; e^{-x} & x>1.2 \end{array}\right
-
-"""
-
 G1_DATA = np.array([[ 4230 , 1.477404177730177e-04 , 1.9565 ],
     [ 3680 , 1.920339268755614e-04 , 1.925 ],
     [ 3450 , 2.894751026819746e-04 , 1.875 ],
@@ -143,38 +137,47 @@ class G_Model(BallisticModel):
         return np.array([Av, Mv])
 
 class Custom_Model(BallisticModel):
-    def __init__(self, rho=1.293e-3, csa=np.pi, cd=1, name="Custom Drag Coefficient"):
+    def __init__(self, rho=1.293e-3, csa=np.pi, name="Custom Model"):
         BallisticModel.__init__(self, name)
         self.rho = rho
-        self.csa = csa
-        self.cd = cd
+        self.csa = csa 
 
     def f(self, vel, bc):
         """ Drag function that takes a custom
             drag coefficient that is dependant of the velocity.
         """
-        force = -0.5 * self.rho * vel**2.0 * self.csa * self.cd(vel)
-
+        force = 0.5 * self.rho * vel**2.0 * self.csa * self.cd(vel)
+        #print "rho: %f" % self.rho
+        #print "vel: %f" % vel
+        #print "csa: %f" % self.csa
+        #print "cd : %f" % self.cd(vel)
+        #print "F_d: %f" % force
         return force
 
-    def custom_cd(self, vel):
+    def cd(self, vel):
         """ Custom drag coefficient function.
             :param vel: Assumes a velocity of ft/sec
         """
         # 1 116.43701 ft / s
         mach = vel / 1116.43701
+        
+        #print "Velocity: %s" % vel
+        #print "Mach: %s" % mach
 
-        f_vel = 1.0 / (20.0 * ( 1.534 + vel)**2.0)
-        f_12 = 1.0 / (20.0 * ( 1.534 + 1.2)**2.0)
+        f_mach = 1.0 / (20.0 * ( 1.534 - mach)**2.0)
+        f_mach12 = 1.0 / (20.0 * ( 1.534  - 1.2)**2.0)
 
         if(mach <= 1.2):
-            return f_vel 
+            return f_mach
         else:
-            return f_12 - np.exp(-1.2) 
+            return f_mach12 - np.exp(-1.2) + np.exp(-mach) * 0.20
 
 def diam4csa(diam):
     """ Calcuates the csa of a sphere given a diameter """
     return np.pi * (float(diam) / 2.0)**2
+
+def mm2ft(mm):
+    return mm * 0.00328084
  
 def G1():
     return G_Model()
