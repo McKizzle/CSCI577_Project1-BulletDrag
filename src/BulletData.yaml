@@ -31,10 +31,11 @@ cartridges:
             "name" : "338 Lapua Magnum"
             "grains" : 299.38775296 # converted from grams
             "bullet style" : "Scenar"
-            "cartridge type" : "scenar"
+            "cartridge type" : "Scenar"
             "ballistic coefficient" : 0.242
             "muzzle velocity" : 2723.1
             "velocity trajectory" : [[109.361, 2588.58], [218.723, 2460.63], [328.084, 2335.96], [656.168, 1984.91], [874.891, 1768.37], [1093.61, 1568.24]]
             "sited at" : 109.361
             "short range trajectory" :
             "long range trajectory" : [[109.361, 0], [218.723, -4.606299], [328.084, -15.98425], [656.168, -99.37008], [874.891, -205.94488], [1093.61, -365.70866]]
+            "diameter" : 8.6

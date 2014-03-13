@@ -44,8 +44,7 @@ def plot_trajectories(bullet):
         :param bullet: A bullet to plot.
     """
 
-    plt.subplots(nrows=2, ncols=1)
-    plt.tight_layout()
+    fig, axes = plt.subplots(nrows=2, ncols=1)
     plt.subplot(211)
     me = bullet.plotme()
     lrt = bullet.plot_lrt()
@@ -58,12 +57,12 @@ def plot_trajectories(bullet):
     title = "Velocity of a %s: %d grain Bullet and %s Model" % (bullet.name, bullet.mass, bullet.model.name)
     plt.title(title)
     plt.legend([vel, vrt], ["Model", "Data"])
-
+    fig.tight_layout()
 
 def zero_in(cartridge, starting_theta, dist, tol, r):
     """ Takes a Projectile and zeros it in the specified distance within
         a tolerance using a 'geometric' search algorithm.
-
+        
         :param cartridge: the cartridge to zero in
         :param starting_theta: the starting angle in degrees.
         :param dist: the distance to zero in on. Expects the distance to be yards.
